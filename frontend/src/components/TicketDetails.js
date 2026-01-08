@@ -477,8 +477,9 @@ function TicketDetails({ user }) {
       {(user.role === 'Admin' || user.role === 'Developer' || user.role === 'Support Engineer') && (
         <div className="bg-white rounded-lg shadow p-6" data-testid="status-update-section">
           <h3 className="text-xl font-semibold mb-4">Update Status</h3>
-          <div className="flex gap-4 items-end">
-            <div className="flex-1">
+          
+          <div className="space-y-4">
+            <div>
               <label className="block text-sm font-medium mb-1">Status</label>
               <select
                 data-testid="status-select"
@@ -494,6 +495,63 @@ function TicketDetails({ user }) {
                 <option value="Closed">Closed</option>
               </select>
             </div>
+
+            {/* Completion Section - Show only when Completed is selected */}
+            {statusUpdate === 'Completed' && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded p-4 space-y-4">
+                <h4 className="font-semibold text-yellow-900">Completion Details (Mandatory)</h4>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-yellow-900">
+                    Resolution Type <span className="text-red-600">*</span>
+                  </label>
+                  <select
+                    data-testid="resolution-type-select"
+                    value={resolutionType}
+                    onChange={(e) => setResolutionType(e.target.value)}
+                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    required
+                  >
+                    <option value="">-- Select Resolution Type --</option>
+                    <option value="Fixed">Fixed</option>
+                    <option value="Enhancement Implemented">Enhancement Implemented</option>
+                    <option value="Configuration Change">Configuration Change</option>
+                    <option value="Data Correction">Data Correction</option>
+                    <option value="Duplicate / Not Required">Duplicate / Not Required</option>
+                    <option value="User Error">User Error</option>
+                    <option value="Deferred">Deferred</option>
+                    <option value="Cannot Reproduce">Cannot Reproduce</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-yellow-900">
+                    Completion Remarks <span className="text-red-600">*</span>
+                  </label>
+                  <textarea
+                    data-testid="completion-remarks-input"
+                    value={completionRemarks}
+                    onChange={(e) => setCompletionRemarks(e.target.value)}
+                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    rows="4"
+                    placeholder="Describe how the ticket was resolved, actions taken, and any relevant details..."
+                    required
+                  />
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
+                  <strong>Auto-captured:</strong> Completed On, Completed Time, Completed By, and Time Duration will be automatically recorded when you save.
+                </div>
+              </div>
+            )}
+
+            {/* Warning for Closed status */}
+            {statusUpdate === 'Closed' && ticket && ticket.status !== 'Completed' && (
+              <div className="bg-red-50 border border-red-200 rounded p-3 text-sm text-red-800">
+                <strong>⚠ Warning:</strong> Cannot close ticket. Status must be "Completed" first before closing.
+              </div>
+            )}
+
             <button
               data-testid="update-status-button"
               onClick={handleStatusUpdate}
