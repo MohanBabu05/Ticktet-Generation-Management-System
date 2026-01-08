@@ -144,6 +144,15 @@ function Layout({ user, onLogout, children }) {
                   Create Ticket
                 </button>
               )}
+              {user.role === 'Admin' && (
+                <button
+                  data-testid="nav-user-management"
+                  onClick={() => navigate('/users')}
+                  className="hover:bg-blue-700 px-3 py-2 rounded transition"
+                >
+                  Users
+                </button>
+              )}
             </div>
           </div>
           <div className="flex items-center space-x-4">
