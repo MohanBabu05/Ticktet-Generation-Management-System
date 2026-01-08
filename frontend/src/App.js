@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard';
 import TicketList from './components/TicketList';
 import TicketDetails from './components/TicketDetails';
 import CreateTicket from './components/CreateTicket';
+import UserManagement from './components/UserManagement';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
