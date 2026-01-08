@@ -12,6 +12,8 @@ function TicketDetails({ user }) {
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [statusUpdate, setStatusUpdate] = useState('');
+  const [resolutionType, setResolutionType] = useState('');
+  const [completionRemarks, setCompletionRemarks] = useState('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
