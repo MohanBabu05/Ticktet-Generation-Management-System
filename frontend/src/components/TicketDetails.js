@@ -450,6 +450,20 @@ function TicketDetails({ user }) {
               <p className="font-semibold" data-testid="view-time-duration">{ticket.time_duration || 'N/A'}</p>
             </div>
             <div>
+              <p className="text-sm text-gray-600">Resolution Type</p>
+              <p className="font-semibold" data-testid="view-resolution-type">
+                {ticket.resolution_type ? (
+                  <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                    {ticket.resolution_type}
+                  </span>
+                ) : 'N/A'}
+              </p>
+            </div>
+            <div className="col-span-2">
+              <p className="text-sm text-gray-600">Completion Remarks</p>
+              <p className="font-semibold" data-testid="view-completion-remarks">{ticket.completion_remarks || 'N/A'}</p>
+            </div>
+            <div>
               <p className="text-sm text-gray-600">EXE Sent</p>
               <p className="font-semibold" data-testid="view-exe-sent">{ticket.exe_sent || 'N/A'}</p>
             </div>
