@@ -578,6 +578,43 @@ async def update_ticket_status(
     if status_update.status not in valid_statuses:
         raise HTTPException(status_code=400, detail="Invalid status")
     
+    # Enforce: Cannot close ticket unless it's already completed
+    if status_update.status == "Closed" and ticket["status"] != "Completed":
+        raise HTTPException(
+            status_code=400, 
+            detail="Cannot close ticket. Status must be 'Completed' first before closing."
+        )
+    
+    # Enforce: Completed status requires Resolution Type and Completion Remarks
+    if status_update.status == "Completed":
+        if not status_update.resolution_type:
+            raise HTTPException(
+                status_code=400,
+                detail="Resolution Type is mandatory when marking ticket as Completed"
+            )
+        if not status_update.completion_remarks or not status_update.completion_remarks.strip():
+            raise HTTPException(
+                status_code=400,
+                detail="Completion Remarks are mandatory when marking ticket as Completed"
+            )
+        
+        # Validate resolution type
+        valid_resolution_types = [
+            "Fixed",
+            "Enhancement Implemented",
+            "Configuration Change",
+            "Data Correction",
+            "Duplicate / Not Required",
+            "User Error",
+            "Deferred",
+            "Cannot Reproduce"
+        ]
+        if status_update.resolution_type not in valid_resolution_types:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid Resolution Type. Must be one of: {', '.join(valid_resolution_types)}"
+            )
+    
     update_data = {"status": status_update.status, "updated_at": datetime.utcnow().isoformat()}
     
     # If status is Completed, capture completion details
@@ -596,7 +633,9 @@ async def update_ticket_status(
             "completed_on": completed_on,
             "completed_time": completed_time,
             "completed_by": completed_by,
-            "time_duration": f"{time_duration} days"
+            "time_duration": f"{time_duration} days",
+            "resolution_type": status_update.resolution_type,
+            "completion_remarks": status_update.completion_remarks
         })
     
     tickets_collection.update_one({"ticket_number": ticket_id}, {"$set": update_data})
