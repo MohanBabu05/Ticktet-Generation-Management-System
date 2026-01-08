@@ -73,12 +73,20 @@ function Login({ onLogin }) {
     }
 
     try {
+      console.log('Sending registration request to:', `${API_URL}/api/auth/register`);
+      console.log('Registration data:', {
+        username: registerData.username,
+        full_name: registerData.fullName
+      });
+      
       const response = await axios.post(`${API_URL}/api/auth/register`, {
         username: registerData.username,
         password: registerData.password,
         full_name: registerData.fullName
       });
 
+      console.log('Registration successful:', response.data);
+      
       localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       
@@ -88,7 +96,10 @@ function Login({ onLogin }) {
       
       onLogin(response.data.user);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Registration failed. Please try again.');
+      console.error('Registration error:', err);
+      console.error('Error response:', err.response);
+      const errorMessage = err.response?.data?.detail || err.message || 'Registration failed. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
