@@ -346,6 +346,63 @@ async def login(user_login: UserLogin):
         }
     }
 
+class UserRegister(BaseModel):
+    username: str
+    password: str
+    full_name: str
+
+@app.post("/api/auth/register")
+async def register(user_register: UserRegister):
+    """Self-registration - First user gets Admin, rest get Manager role"""
+    
+    # Check if username already exists
+    if users_collection.find_one({"username": user_register.username}):
+        raise HTTPException(status_code=400, detail="Username already exists")
+    
+    # Validate username (alphanumeric and underscore only)
+    if not re.match(r'^[a-zA-Z0-9_]+$', user_register.username):
+        raise HTTPException(status_code=400, detail="Username must contain only letters, numbers, and underscores")
+    
+    # Validate password length
+    if len(user_register.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    
+    # Check if this is the first user
+    user_count = users_collection.count_documents({})
+    
+    if user_count == 0:
+        # First user gets Admin role
+        role = "Admin"
+    else:
+        # Subsequent users get Manager role (read-only)
+        role = "Manager"
+    
+    # Create user
+    user_doc = {
+        "username": user_register.username,
+        "password": hash_password(user_register.password),
+        "full_name": user_register.full_name,
+        "role": role,
+        "created_at": datetime.utcnow().isoformat(),
+        "created_by": "self_registration"
+    }
+    
+    users_collection.insert_one(user_doc)
+    
+    # Generate token for immediate login
+    access_token = create_access_token(data={"sub": user_register.username})
+    
+    return {
+        "message": f"Account created successfully with {role} role",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "username": user_register.username,
+            "full_name": user_register.full_name,
+            "role": role
+        }
+    }
+
 @app.get("/api/auth/me")
 async def get_me(current_user: dict = Depends(get_current_user)):
     return current_user
