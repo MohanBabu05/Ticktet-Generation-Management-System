@@ -150,6 +150,8 @@ class TicketUpdate(BaseModel):
 class StatusUpdate(BaseModel):
     status: str
     completed_by: Optional[str] = None
+    resolution_type: Optional[str] = None
+    completion_remarks: Optional[str] = None
 
 # Helper Functions
 def hash_password(password: str) -> str:
