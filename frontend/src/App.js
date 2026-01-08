@@ -221,6 +221,7 @@ function App() {
           <Route path="/tickets" element={<TicketList user={user} />} />
           <Route path="/tickets/:ticketId" element={<TicketDetails user={user} />} />
           <Route path="/create-ticket" element={<CreateTicket user={user} />} />
+          <Route path="/users" element={<UserManagement user={user} />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Layout>
