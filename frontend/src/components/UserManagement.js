@@ -225,17 +225,31 @@ function UserManagement({ user }) {
                   <tr key={u.username} className="hover:bg-gray-50" data-testid={`user-row-${u.username}`}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {u.username}
+                      {u.created_by === 'self_registration' && (
+                        <span className="ml-2 px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">Self-registered</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{u.full_name}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded ${
-                        u.role === 'Admin' ? 'bg-red-100 text-red-800' :
-                        u.role === 'Support Engineer' ? 'bg-blue-100 text-blue-800' :
-                        u.role === 'Developer' ? 'bg-green-100 text-green-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {u.role}
-                      </span>
+                      <select
+                        value={u.role}
+                        onChange={(e) => handleRoleChange(u.username, e.target.value)}
+                        disabled={u.username === user.username}
+                        className={`px-2 py-1 text-xs font-semibold rounded border ${
+                          u.username === user.username ? 'bg-gray-100 cursor-not-allowed' : 'cursor-pointer'
+                        } ${
+                          u.role === 'Admin' ? 'bg-red-100 text-red-800 border-red-300' :
+                          u.role === 'Support Engineer' ? 'bg-blue-100 text-blue-800 border-blue-300' :
+                          u.role === 'Developer' ? 'bg-green-100 text-green-800 border-green-300' :
+                          'bg-gray-100 text-gray-800 border-gray-300'
+                        }`}
+                        data-testid={`role-select-${u.username}`}
+                      >
+                        <option value="Admin">Admin</option>
+                        <option value="Support Engineer">Support Engineer</option>
+                        <option value="Developer">Developer</option>
+                        <option value="Manager">Manager</option>
+                      </select>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
