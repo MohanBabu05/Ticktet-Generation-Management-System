@@ -8,7 +8,7 @@ import TicketDetails from './components/TicketDetails';
 import CreateTicket from './components/CreateTicket';
 import UserManagement from './components/UserManagement';
 
-const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+const API_URL = process.env.REACT_APP_BACKEND_URL || '';
 
 // Axios interceptor for adding auth token
 axios.interceptors.request.use((config) => {
