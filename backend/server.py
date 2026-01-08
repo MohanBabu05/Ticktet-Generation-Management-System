@@ -772,6 +772,36 @@ async def change_password(
     
     return {"message": "Password changed successfully"}
 
+class RoleUpdate(BaseModel):
+    role: str
+
+@app.put("/api/users/{username}/role")
+async def update_user_role(
+    username: str,
+    role_update: RoleUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update user role (Admin only)"""
+    if current_user["role"] != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can update user roles")
+    
+    # Validate role
+    valid_roles = ["Admin", "Support Engineer", "Developer", "Manager"]
+    if role_update.role not in valid_roles:
+        raise HTTPException(status_code=400, detail=f"Invalid role. Must be one of: {', '.join(valid_roles)}")
+    
+    user = users_collection.find_one({"username": username})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update role
+    users_collection.update_one(
+        {"username": username},
+        {"$set": {"role": role_update.role}}
+    )
+    
+    return {"message": f"User {username} role updated to {role_update.role}"}
+
 @app.put("/api/users/{username}/reset-password")
 async def reset_user_password(
     username: str,
