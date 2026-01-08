@@ -66,11 +66,42 @@ function TicketDetails({ user }) {
 
   const handleStatusUpdate = async () => {
     try {
-      await axios.put(`${API_URL}/api/tickets/${ticketId}/status`, {
+      // Validation for Completed status
+      if (statusUpdate === 'Completed') {
+        if (!resolutionType) {
+          setMessage('Resolution Type is required when marking ticket as Completed');
+          return;
+        }
+        if (!completionRemarks || !completionRemarks.trim()) {
+          setMessage('Completion Remarks are required when marking ticket as Completed');
+          return;
+        }
+      }
+      
+      // Validation for Closed status
+      if (statusUpdate === 'Closed' && ticket.status !== 'Completed') {
+        setMessage('Cannot close ticket. Status must be "Completed" first before closing.');
+        return;
+      }
+      
+      const payload = {
         status: statusUpdate,
         completed_by: user.full_name
-      });
+      };
+      
+      // Add completion fields only if status is Completed
+      if (statusUpdate === 'Completed') {
+        payload.resolution_type = resolutionType;
+        payload.completion_remarks = completionRemarks;
+      }
+      
+      await axios.put(`${API_URL}/api/tickets/${ticketId}/status`, payload);
       setMessage('Status updated successfully');
+      
+      // Reset completion fields
+      setResolutionType('');
+      setCompletionRemarks('');
+      
       fetchTicket();
     } catch (error) {
       setMessage(error.response?.data?.detail || 'Error updating status');
