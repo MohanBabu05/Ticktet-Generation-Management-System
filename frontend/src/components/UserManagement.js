@@ -68,6 +68,20 @@ function UserManagement({ user }) {
     }
   };
 
+  const handleRoleChange = async (username, newRole) => {
+    if (!window.confirm(`Change role for "${username}" to "${newRole}"?`)) {
+      return;
+    }
+
+    try {
+      await axios.put(`${API_URL}/api/users/${username}/role`, { role: newRole });
+      setMessage(`Role updated successfully for ${username}`);
+      fetchUsers();
+    } catch (error) {
+      setMessage(error.response?.data?.detail || 'Error updating role');
+    }
+  };
+
   if (user.role !== 'Admin') {
     return (
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
