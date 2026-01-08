@@ -102,14 +102,8 @@ function Login({ onLogin }) {
           </button>
         </form>
 
-        <div className="mt-6 text-sm text-gray-600">
-          <p className="font-semibold mb-2">Default Credentials:</p>
-          <ul className="space-y-1">
-            <li>Admin: admin / admin123</li>
-            <li>Support: seenivasan / support123</li>
-            <li>Developer: annamalai / dev123</li>
-            <li>Manager: manager / manager123</li>
-          </ul>
+        <div className="mt-6 text-sm text-gray-600 text-center">
+          <p>Please contact your system administrator for login credentials.</p>
         </div>
       </div>
     </div>
