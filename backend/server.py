@@ -450,6 +450,8 @@ async def create_ticket(
         "completed_by": None,
         "completed_time": None,
         "time_duration": None,
+        "resolution_type": None,
+        "completion_remarks": None,
         "exe_sent": None,
         "reason_for_issue": None,
         "customer_call": None,
