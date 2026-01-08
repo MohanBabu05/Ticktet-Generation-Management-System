@@ -623,6 +623,120 @@ async def get_support_engineers(current_user: dict = Depends(get_current_user)):
     """Get list of all support engineers"""
     return {"support_engineers": list(set(supportModuleMap.values()))}
 
+# User Management APIs
+@app.post("/api/users")
+async def create_user(
+    user_create: UserCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create new user (Admin only)"""
+    if current_user["role"] != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can create users")
+    
+    # Check if user already exists
+    if users_collection.find_one({"username": user_create.username}):
+        raise HTTPException(status_code=400, detail="Username already exists")
+    
+    # Validate role
+    valid_roles = ["Admin", "Support Engineer", "Developer", "Manager"]
+    if user_create.role not in valid_roles:
+        raise HTTPException(status_code=400, detail=f"Invalid role. Must be one of: {', '.join(valid_roles)}")
+    
+    # Create user
+    user_doc = {
+        "username": user_create.username,
+        "password": hash_password(user_create.password),
+        "full_name": user_create.full_name,
+        "role": user_create.role,
+        "created_at": datetime.utcnow().isoformat(),
+        "created_by": current_user["username"]
+    }
+    
+    result = users_collection.insert_one(user_doc)
+    
+    return {
+        "message": "User created successfully",
+        "username": user_create.username,
+        "role": user_create.role
+    }
+
+@app.get("/api/users")
+async def list_users(current_user: dict = Depends(get_current_user)):
+    """List all users (Admin only)"""
+    if current_user["role"] != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can view users")
+    
+    users = list(users_collection.find({}, {"password": 0}))
+    for user in users:
+        user["_id"] = str(user["_id"])
+    
+    return users
+
+@app.delete("/api/users/{username}")
+async def delete_user(
+    username: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete user (Admin only)"""
+    if current_user["role"] != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can delete users")
+    
+    if username == current_user["username"]:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    
+    result = users_collection.delete_one({"username": username})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": f"User {username} deleted successfully"}
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+@app.put("/api/users/change-password")
+async def change_password(
+    password_change: PasswordChange,
+    current_user: dict = Depends(get_current_user)
+):
+    """Change own password"""
+    # Verify current password
+    user = users_collection.find_one({"username": current_user["username"]})
+    if not verify_password(password_change.current_password, user["password"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    # Update password
+    new_hashed = hash_password(password_change.new_password)
+    users_collection.update_one(
+        {"username": current_user["username"]},
+        {"$set": {"password": new_hashed}}
+    )
+    
+    return {"message": "Password changed successfully"}
+
+@app.put("/api/users/{username}/reset-password")
+async def reset_user_password(
+    username: str,
+    new_password: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Reset user password (Admin only)"""
+    if current_user["role"] != "Admin":
+        raise HTTPException(status_code=403, detail="Only admins can reset passwords")
+    
+    user = users_collection.find_one({"username": username})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    new_hashed = hash_password(new_password)
+    users_collection.update_one(
+        {"username": username},
+        {"$set": {"password": new_hashed}}
+    )
+    
+    return {"message": f"Password reset successfully for user {username}"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
