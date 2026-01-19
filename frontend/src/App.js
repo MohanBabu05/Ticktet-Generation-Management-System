@@ -225,7 +225,7 @@ function Login({ onLogin }) {
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md" data-testid="login-container">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">ERP Ticketing System</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Kalsofte Ticketing System</h1>
           <p className="text-gray-600">Login to continue</p>
         </div>
 
@@ -303,7 +303,7 @@ function Layout({ user, onLogout, children }) {
       <nav className="bg-blue-600 text-white shadow-lg" data-testid="navbar">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center space-x-6">
-            <h1 className="text-xl font-bold">ERP Ticketing System</h1>
+            <h1 className="text-xl font-bold">Kalsofte Ticketing System</h1>
             <div className="hidden md:flex space-x-4">
               <button
                 data-testid="nav-dashboard"
